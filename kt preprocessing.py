@@ -14,7 +14,7 @@ import re
 re_dic = ["\[.*\] *", "\(.*판매종료\) *", "\(소장용\) ", "\d{4}-\d{2}\-\d{2} ",
           " *\(배리어프리\) *", " *\(.*중지.*\) *", " *\(.*종료.*\) *", " *\(.*무삭제.*\) *", " *\(.*더빙.*\) *", 
           " *\(.*자막.*\) *", " *\(.*OpenVOD.*\) *", "\d{2}\/\d{2} ", " *\(.*확장판.*\) *", " *\(.*2D.*\) *", 
-          " *\(.*3D.*\) *", " *\(.*감독판.*\) *"]
+          " *\(.*3D.*\) *", " *\(.*감독판.*\) *", ' *3D *']
 
 mod_dic = [".*1.*박.*2.*일.*", ".*무.*한.*도.*전.*"]
 
@@ -88,10 +88,7 @@ for i in month :
     print(i)
     kt_preprocessing(i)
     
-kt_preprocessing('11')    
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\kt_2017-11.txt',"rb") as fp :
-    test11 = pickle.load(fp)
-  
+
 
 
 
