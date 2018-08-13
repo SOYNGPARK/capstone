@@ -19,6 +19,13 @@ with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_new_
         vu = pickle.load(fp)
     
 
+# unique vod    
+def unique_vod(vod) :
+    title, count = np.unique(vod['상품명2'], return_counts=True)    
+    vod_unique = pd.DataFrame({'title' : title, 'count' : count})
+    return vod_unique 
+
+
 # check original dataframe from new title
 def get_original(new_title) : 
     return vod_new[vod_new['상품명2']==new_title]
@@ -26,9 +33,9 @@ def get_original(new_title) :
 orig = get_original('보보경심 (하)')
 
 for i in range(len(vu)) :
-    if re.compile('.*황금빛\s?내\s?인생.*').match(vu['title'][i]) : 
+    if re.compile('.*어떤.*').match(vu['title'][i]) : 
         print(vu['title'][i], vu['count'][i])
-        
+    
         
 ## drop ##
 
@@ -94,17 +101,18 @@ for i in range(len(drops)-1) :
 
 
 # drop
-vods1 = vods
 for i in range(len(drops)) :
     print("**", i)
     for j in range(len(drops[i])) :
         print("*", j)
-        vods1[i] = vods[i].drop(vods[i][vods[i]['상품명2'] == drops[i][j]].index)
+        vods[i] = vods[i].drop(vods[i][vods[i]['상품명2'] == drops[i][j]].index)
 
-vod_after_drop = vods1[0]
-for i in vods1[1:] :
+vod_after_drop = vods[0]
+for i in vods[1:] :
     vod_after_drop = pd.concat([vod_after_drop, i])
 
+
+len(vu) - len(unique_vod(vod_after_drop)) == len(drop_dic) # 확인
 
 # save
 with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_after_drop.txt',"wb") as fp :
@@ -177,10 +185,6 @@ for i in range(len(changes)) :
     for j in range(len(changes[i])) :
         print("*", i, '-', j)
         vods3[i]['상품명2'].loc[vods3[i]['상품명2'] == changes[i]['before'].iat[j]] = changes[i]['after'].iat[j]
-        
-#        for k in range(len(vods3[i])) :
-#            if vods3[i]['상품명2'].iat[k] == changes[i]['before'].iat[j] :
-#                vods3[i]['상품명3'].iat[k] = changes[i]['after'].iat[j]
   
 
 vod_after_change = vods3[0]
@@ -189,52 +193,99 @@ for i in vods3[1:] :
 
 
 # save
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_after_change.txt',"wb") as fp :
-        pickle.dump(vod_after_change,fp)
+#with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_after_change.txt',"wb") as fp :
+#        pickle.dump(vod_after_change,fp)
 
 with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_after_change.txt',"rb") as fp :
-        vod_after_change1 = pickle.load(fp)   
+        vod_after_change = pickle.load(fp)   
+
+# unique vod        
+vu1 = unique_vod(vod_after_change)
+
+
+##additional change & drop##
+
+def drop_vod(vods, drop_dic) :
+    # vods : DataFrame / vod 구매 목록 / '상품명2' 칼럼 포함
+    # drop_dic : list / '상품명2' 칼럼 중 제거 목록 
+    for i in range(len(drop_dic)) :
+        print('*', i)
+        print(len(vods[vods['상품명2'] == drop_dic[i]].index), '개를 삭제하자')
+        vods = vods.drop(vods[vods['상품명2'] == drop_dic[i]].index)
+        print(len(vods), '개가 남았다')
         
-        
-      
-def unique_vod(vod) :
-    title, count = np.unique(vod['상품명2'], return_counts=True)    
-    vod_unique = pd.DataFrame({'title' : title, 'count' : count})
-    return vod_unique        
-
-len(unique_vod(vod_after_drop))
-len(unique_vod(vod_after_change))
-
-vu1 = unique_vod(vod_after_change)  
+    return vods
 
 
+def change_vod(vods, change_dic) :
+    # vods : DataFrame / vod 구매 목록 / '상품명2' 칼럼 포함
+    # drop_dic : DatFrame(N by 2) / '상품명2' 칼럼 중 변경 목록 / 'before', 'after' 칼럼 포함
+    for j in range(len(change_dic)) :
+        print(j)
+        vods['상품명2'].loc[vods['상품명2'] == change_dic['before'].iat[j]] = change_dic['after'].iat[j]
+    
+    return vods
 
 
-########
-
+# drop
 drop_dic2 = pd.read_excel(r'C:\Users\soug9\Desktop\Capstone Design 1\data\delete2_dic.xlsx')
 drop_dic2 = drop_dic2['delete'].tolist()
-idx = vod_after_change[vod_after_change['상품명2'] == drop_dic2[-1]].index[0]
+drop_dic2.sort()
 
-vod_after_change2 = vod_after_change
-for i in range(len(drop_dic2)) :
-        print(i)
-        vod_after_change2 = vod_after_change2.drop(vod_after_change2[vod_after_change2['상품명2'] == drop_dic2[i]].index)
+vod_after_drop2 = drop_vod(vod_after_change, drop_dic2)
 
-change_dic2 = 
+len(vu1) - len(unique_vod(vod_after_drop2)) == len(drop_dic2) # 확인
 
-for j in range(len(changes[i])) :
-    print(j)
-    vod_after_change2['상품명2'].loc[vod_after_change2['상품명2'] == changes[i]['before'].iat[j]] = changes[i]['after'].iat[j]
-    
+# save
+#with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_after_drop2.txt',"wb") as fp :
+#        pickle.dump(vod_after_drop2,fp)
 
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_after_drop2.txt',"rb") as fp :
+        vod_after_drop2 = pickle.load(fp)   
 
 
+# change
+change_dic2 = pd.read_excel(r'C:\Users\soug9\Desktop\Capstone Design 1\data\change2_dic.xlsx')
+vod_after_change2 = change_vod(vod_after_drop2, change_dic2)
+
+# save
+#with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_after_change2.txt',"wb") as fp :
+#        pickle.dump(vod_after_change2,fp)
+
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_after_change2.txt',"rb") as fp :
+        vod_after_change2 = pickle.load(fp)   
+
+# unique vod
+vu2 = unique_vod(vod_after_change2)
+
+
+#
+vod_after_change2 = vod_after_change2.drop(vod_after_change2[vod_after_change2['가맹점아이디'] == '1%의 어떤 것'].index)
+a = vod_new[vod_new['상품명2'] == '1%의 어떤 것(2016)']
+a['상품명2'] = '1%의 어떤 것'
+vod_after_change2 = pd.concat([vod_after_change2, a])
 
 
 
+## n번이상 구매한 회원 추출 ##
 
+vod_after_change2['아이디+회원번호'] = vod_after_change2[['가맹점아이디', 
+                 '회원번호']].apply(lambda x : '{}_{}'.format(x.values[0], x.values[1]), axis=1)
 
+vodBuyNumber = vod_after_change2[['아이디+회원번호', '상품명']].groupby('아이디+회원번호').count()
+vodBuyNumber['상품명'].describe()
+vodBuyNumber['상품명'].plot.hist(bins=50)
+vodBuyNumber['상품명'].plot.box()
+
+len(vodBuyNumber[vodBuyNumber['상품명'] > 7])
+
+vod_final = vod_after_change2[vod_after_change2['아이디+회원번호'].isin(vodBuyNumber[vodBuyNumber['상품명'] > 7].index)]
+
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_final.txt',"wb") as fp :
+        pickle.dump(vod_final,fp)
+        
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_final.txt',"rb") as fp :
+        vod_final_test = pickle.load(fp)  
 
 
 
