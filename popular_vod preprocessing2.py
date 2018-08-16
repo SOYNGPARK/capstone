@@ -281,14 +281,25 @@ len(vodBuyNumber[vodBuyNumber['상품명'] > 7])
 
 vod_final = vod_after_change2[vod_after_change2['아이디+회원번호'].isin(vodBuyNumber[vodBuyNumber['상품명'] > 7].index)]
 
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_final.txt',"wb") as fp :
-        pickle.dump(vod_final,fp)
+
+# save
+
+#with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_final.txt',"wb") as fp :
+#        pickle.dump(vod_final,fp)
         
 with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_final.txt',"rb") as fp :
         vod_final_test = pickle.load(fp)  
 
 
+# unique vod
 
+vu3 = unique_vod(vod_final)
+
+#with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_final_unique.txt',"wb") as fp :
+#        pickle.dump(vu3,fp)
+        
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_final_unique.txt',"rb") as fp :
+        vu3_test = pickle.load(fp)  
 
 
 
