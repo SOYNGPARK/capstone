@@ -78,7 +78,7 @@ before_matrix = create_matrix(before)
 all_matrix = create_matrix(drama)
 
 # 나름 단순 정규화
-norm_matrix = all_matrix
+norm_matrix = create_matrix(drama)
 
 for i in range(len(norm_matrix)) :
     mx = max(norm_matrix.iloc[i,:].values)
@@ -86,7 +86,7 @@ for i in range(len(norm_matrix)) :
     
     for j in range(len(norm_matrix.iloc[0])) :
         norm_matrix.iloc[i,j] = (norm_matrix.iloc[i,j] - mn) / (mx-mn) * 0.2
-
+     
 
 final_matrix = norm_matrix
 
@@ -96,15 +96,25 @@ for i in range(len(final_matrix)) :
             final_matrix.iloc[i,j] = final_matrix.iloc[i,j] + 0.8
         elif before_matrix.iloc[i,j] >= 10 : # 1달 전 부터 11달 동안 10회 이상 시청
             final_matrix.iloc[i,j] = final_matrix.iloc[i,j] + 0.7
-        elif once_matrix.iloc[i,j] <= 2 &  once_matrix.iloc[i,j] >= 1: # 3개월 이전에 2번 이하 시청하고 최근 3개월간 시청하지 않음
-            final_matrix.iloc[i,j] = -100
+        elif once_matrix.iloc[i,j] <= 2 and once_matrix.iloc[i,j] > 0 : # 3개월 이전에 2번 이하 시청하고 최근 3개월간 시청하지 않음
+            final_matrix.iloc[i,j] = 0.001
         
 
+# save
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\final_matrix.txt',"wb") as fp :
+        pickle.dump(final_matrix,fp)
+    
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\final_matrix.txt',"rb") as fp :
+        test = pickle.load(fp)
 
 
+# test
+am = all_matrix['KTPGMTV001_8136063'][all_matrix['KTPGMTV001_8136063']>0]
+fm = final_matrix['KTPGMTV001_8136063'][final_matrix['KTPGMTV001_8136063']!=0]
 
-
-
+m = pd.concat([am,fm], axis=1)
+m.columns = ['시청횟수', '선호도']
+m = m.sort_values(['시청횟수'], ascending=[False])
 
 
 

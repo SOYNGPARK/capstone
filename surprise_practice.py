@@ -15,6 +15,8 @@ algo = KNNBasic()
 
 algo.fit(trainset)
 
-algo.predict('Alice', 'Titanic')
+algo.predict('197', '223', 8)
 
 algo.predict('afsdf', 'gggegw')
+
+algo.estimate('197', '223')
