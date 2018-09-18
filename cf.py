@@ -19,83 +19,92 @@ users = ratings.columns.tolist()
 items = ratings.index.tolist()
 
 
-a = [i for i in range(10)]  
-a.remove(3)
-
-
-
 def predict_rating(u, i, k=5) :
-# u = user, i = item, v= a neighbor of u, r = rating, k = # of neighbors of u
+    ## INPUT : u(user_id), i(item_id), k(# of neighbors of u) ##
+    ## OUTPUT : r_ui(user u's rating for item i) ##
+    
+    # vs : neighbors of u  
     vs = [x for x in range(len(users))]
     vs.remove(u)
-    
-    r_vis = [ratings.iloc[i,v] for v in vs]
-    sim_uvs = [sim[u,v] for v in vs]
-    
+          
+    r_vis = [ratings.iloc[i,v] for v in vs if ratings.iloc[i,v] != 0] # user v's rating for item i
+    sim_uvs = [sim[u,v] for v in vs if ratings.iloc[i,v] != 0] # similarity between u and v
+   
     neighbors = list()
     for x in range(len(r_vis)) :
         neighbors.append((sim_uvs[x], r_vis[x]))
 
-    neighbors.sort(key=lambda x: x[0], reverse=True) # 유사도가 높은 순서대로 정렬
+    neighbors.sort(key=lambda x: x[0], reverse=True) # sort by similarity in descending order
     
+    # predict rating
     divid = sum(sim_uv*r_vi for (sim_uv, r_vi) in neighbors[:k])
     divis = sum(sim_uv for (sim_uv, r_vi) in neighbors[:k])
     
     r_ui = divid/divis
     
-    return r_ui
+    # similar neighbors
+    similar_neighbors = [(sim_uv, r_vi) for (sim_uv, r_vi) in neighbors[:k]]
+    
+    return r_ui, similar_neighbors
 
 
-ratings.iloc[0,167]
-predict_rating(0, 167)
-
-a = ratings['KTPGMTV001_5489962'][ratings['KTPGMTV001_5489962']==0].index.tolist()
-print(a)
-
-
-
-
-def tell_me(u) :
-    uid = users.index(u)
+def tell_me(user) :
+    ## INPUT : user(user name)##
+    ## OUTPUT : None ##
+    
+    uid = users.index(user)
     
     # 이미 시청한 아이템
-    see = ratings[u][ratings[u]>0].index.tolist()
-    see_r = ratings[u][ratings[u]>0].tolist()
+    see = ratings[user][ratings[user]>0].index.tolist() # item 제목
+    see_r = ratings[user][ratings[user]>0].tolist() # item 평점
     
     see_ratings = list()
-    for i in range(len(see_r)) :
-        see_ratings.append( (see[i], see_r[i]) )
+    for i in range(len(see)) :
+        see_ratings.append( (see[i], see_r[i]) ) # item 제목, item 평점
         
     see_ratings.sort(key=lambda x : x[1], reverse=True)
     
-    # 실제로 좋아할 거라고 예상되는 아이템
-    like = see_ratings[:3]
-    print('* {} 고객님이 실제로 좋아하시는 프로그램이에요! *'.format(u))
-    for x in like :
-        print('{}\t {}'.format(x[0], x[1]))
+    # 실제로 좋아하는 아이템 top3
+    like = [(t, r) for (t, r) in see_ratings if r > 0.6]
     
-    # 아직 안 본 아이템
-    nosee = ratings[u][ratings[u]==0].index.tolist()
-    nosee_id = [items.index(i) for i in nosee]
+    if len(like) == 0 :
+        print('* {} cold start *'.format(user))
     
-    nosee_ratings = list()
-    for i in nosee_id :
-        nosee_ratings.append( (i, predict_rating(uid, i)) )
+    else :
+        print('* {} 고객님이 실제로 좋아하시는 프로그램이에요! *'.format(user))
+        for x in like :
+            print('{}\t {}'.format(x[0], x[1]))
+
+        # 아직 안 본 아이템
+        nosee = ratings[user][ratings[user]==0].index.tolist() # item 제목
+        nosee_id = [items.index(i) for i in nosee] # item id
     
-    nosee_ratings.sort(key=lambda x : x[1], reverse=True)
+        nosee_ratings = list()
+        for i in range(len(nosee)) :
+            nosee_ratings.append( (nosee[i], predict_rating(uid, nosee_id[i])[0]) ) # item 제목, item 평점
     
-    # 추천 아이템
-    recommend = nosee_ratings[:3]
+        nosee_ratings.sort(key=lambda x : x[1], reverse=True)
     
-    print('* {} 고객님께 추천드려요! *'.format(u))
-    for x in recommend :
-        print('{}\t {}'.format(items[x[0]], x[1]))
+        # 추천 아이템 top3
+        recommend = nosee_ratings[:3]
     
+        print('* {} 고객님께 추천드려요! *'.format(user))
+        for x in recommend :
+            print('{}\t {}'.format(x[0], x[1]))
+    
+        # similar neighbors
+        print('* {}\'s similar neighbors *'.format(user))
+        for x in recommend :
+            print(x[0])
+            similar_neighbors = predict_rating(uid, items.index(x[0]))[1]
+            for n in similar_neighbors :
+                print(n)
+
     return None
 
 
 tell_me('KTPGMTV001_526357')
-tell_me(users[17])
+tell_me(users[15])
 
 
 for u in users:
@@ -105,6 +114,12 @@ for u in users:
 
 
 
+user = 'KTPGMTV001_526357'
+
+u = users.index(user)
+i = 0
+
+r_ui, sne = predict_rating(u,i)
 
 # 시청기록 횟수와 유사도에 따른 분류, 좋아하는 그리고 추천하는 프로그램 수 = max(0.7보다 큰 수, 3)
 
@@ -114,9 +129,11 @@ for u in users:
 
 
 
+a = []
 
+[i for i in a if i>2]
 
+for aa in a :
+    print(aa)
 
-
-
-
+a[0]
