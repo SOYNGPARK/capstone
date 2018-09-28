@@ -84,7 +84,7 @@ norm_matrix = norm_matrix*100
 
 # infer score for drama
 
-# 1) 30일 전까지 1~2번 시청한게 전부인 item = 0.001
+# 1) 30일 전까지 1~2번 시청한게 전부인 item = 0.1
 once_matrix[(once_matrix<=2) & (once_matrix>0) & ((all_matrix - once_matrix) == 0)] = 0.1
 once_matrix[once_matrix>2] = 0
 
@@ -169,7 +169,11 @@ def drama_rating(drama) :
     return m
 
 drama = drama_rating('워킹데드 시즌1')
-drama2 = drama_rating('20세기 소년소녀')
+drama2 = drama_rating('슬기로운 감빵생활')
+
+a = drama2.sort_values(['선호도'], ascending=[False])['선호도'][drama2['선호도'] > 0]
+b = a[a <= 20]
+b.plot.line()
 
 
 

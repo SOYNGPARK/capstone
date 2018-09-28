@@ -45,7 +45,7 @@ items_count.columns = ['구매횟수합']
 items_count['사용자수'] = np.count_nonzero(drama_matrix, axis=0)
 items_count['구매비율'] = items_count['구매횟수합']/items_count['사용자수']
 
-#drama_matrix[drama_matrix<70] = 0
+#drama_matrix[drama_matrix<10] = 0
 #items_count['선호도합'] = np.sum(drama_matrix, axis=0)
 #items_count['선호사용자수'] = np.count_nonzero(drama_matrix, axis=0)
 #items_count['선호비율'] = items_count['선호도합']/items_count['선호사용자수']
@@ -77,129 +77,5 @@ with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\cluster_
     
 with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\drama_matrix.txt',"rb") as fp :
         cluster_matrix_test = pickle.load(fp)
-
-
-
-
-
-#
-### clustering ##
-#final_matrix1.loc['KTPGMTV001_8136063',:][final_matrix1.loc['KTPGMTV001_8136063',:] != 0]
-#
-#from sklearn.cluster import AgglomerativeClustering
-#from scipy.cluster.hierarchy import dendrogram, linkage
-#
-## dendrogram
-#Z = linkage(final_matrix1[:100], 'average')
-#fig = plt.figure(figsize=(25, 10))
-#dn = dendrogram(Z)
-#
-#
-#
-#
-## build model
-#cls1=AgglomerativeClustering(n_clusters=5, linkage='average')
-#cls1.fit(final_matrix1[:1000])
-#label=cls1.labels_
-#children = cls1.children_
-#
-#plt.scatter(x1[:,0],x1[:,1],c=label2)
-#
-#
-#
-
-
-
-
-
-
-#
-## clusterig을 위한 최종 데이터 생성
-#popular_matrix = popular_matrix.reset_index()
-#final_matrix = pd.merge(users, popular_matrix, how='left', on='아이디+회원번호')
-#final_matrix = final_matrix.set_index('아이디+회원번호')
-#
-#
-### eda ##
-#
-## sum
-#rating_sum = np.sum(final_matrix.iloc[:,7:], axis=1)
-#rating_sum.describe()
-#plt.hist(rating_sum, bins=100)
-#
-## count
-#users_list = rating_sum.index.tolist()
-#rating_count = pd.Series(np.count_nonzero(final_matrix.iloc[:,7:], axis=1))
-#rating_count.index = users_list
-#rating_count.describe()
-#plt.hist(rating_count, bins=22)
-#
-#
-#rating_log = pd.concat([rating_sum, rating_count], axis=1)
-#rating_log.columns = ['sum', 'count']
-#rating_log=rating_log.sort_values(['sum'], ascending=[False])
-#rating_log['sum'].plot.line()
-#rating_log['sum'][rating_log['sum']<=200].plot.line()
-#rating_log['count'].plot.line()
-#
-#
-#
-## cold start 제외
-#drama_matrix = drama_matrix.reset_index()
-#final_matrix1 = pd.merge(users, drama_matrix, how='left', on='아이디+회원번호')
-#final_matrix1 = final_matrix1.set_index('아이디+회원번호')
-#final_matrix1 = final_matrix1[rating_log['sum'] > 70]
-#
-#
-#final_matrix = final_matrix[rating_log['sum'] > 70]
-#
-#with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\clustering_matrix.txt',"wb") as fp :
-#        pickle.dump(final_matrix1,fp)
-#    
-#with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\clustering_matrix.txt',"rb") as fp :
-#        final_matrix2 = pickle.load(fp)
-
-
-
-
-
-#cls_kmeans =KMeans(n_clusters=5, init='random')
-#cls_kmeans.fit(final_matrix)
-#
-#label=cls_kmeans.labels_
-#
-#
-#
-#
-#cls0 = final_matrix.iloc[label==0,:]
-## 성별
-#cls0['성별코드'].value_counts()
-## 나이대
-#np.sum(cls0[[10, 20, 30, 40, 50, 60]], axis=0)
-## 드라마 선호도 합
-#np.sum(cls0.iloc[:,7:], axis=0)
-## 드라마 시청한 사람 수
-#for_count = cls0.iloc[:,7:]
-#for_count[for_count != 0] = 1
-#np.sum(for_count, axis=0)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

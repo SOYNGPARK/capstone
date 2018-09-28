@@ -10,16 +10,28 @@ from sklearn.metrics.pairwise import pairwise_distances
 import numpy as np
 import pandas as pd
 
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\final_matrix.txt',"rb") as fp :
-        ratings = pickle.load(fp)
+# load data
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\drama_matrix.txt',"rb") as fp :
+        drama_matrix = pickle.load(fp)
         
-sim = 1 - pairwise_distances(ratings.T, metric='cosine') # 1 - (1-cosine similarity) = cosine similarity
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\user_labels.txt',"rb") as fp :
+        user_labels = pickle.load(fp)
 
-users = ratings.columns.tolist()
-items = ratings.index.tolist()
+# user <- clustering 
+ratings = drama_matrix.loc[user_labels[user_labels['labels']==2]['users'].tolist(),:]        
+     
+# item <- 5명 이상의 유저가 시청
+ratings_t = ratings.T[np.count_nonzero(ratings, axis=0)>=5]
+ratings = ratings_t.T
+   
+# similarity
+sim = 1 - pairwise_distances(ratings, metric='cosine') # 1 - (1-cosine similarity) = cosine similarity
+
+items= ratings.columns.tolist()
+users = ratings.index.tolist()
 
 
-def predict_rating(u, i, k=5) :
+def predict_rating(u, i, k=3) :
     ## INPUT : u(user_id), i(item_id), k(# of neighbors of u) ##
     ## OUTPUT : r_ui(user u's rating for item i) ##
     
@@ -27,13 +39,17 @@ def predict_rating(u, i, k=5) :
     vs = [x for x in range(len(users))]
     vs.remove(u)
           
-    r_vis = [ratings.iloc[i,v] for v in vs if ratings.iloc[i,v] != 0] # user v's rating for item i
-    sim_uvs = [sim[u,v] for v in vs if ratings.iloc[i,v] != 0] # similarity between u and v
+    r_vis = [ratings.iloc[v,i] for v in vs if ratings.iloc[v,i] != 0] # user v's rating for item i
+    sim_uvs = [sim[u,v] for v in vs if ratings.iloc[v,i] != 0] # similarity between u and v
    
     neighbors = list()
     for x in range(len(r_vis)) :
-        neighbors.append((sim_uvs[x], r_vis[x]))
-
+        if sim_uvs[x] > 0.5 :
+            neighbors.append((sim_uvs[x], r_vis[x]))
+            
+    if len(neighbors) < k :
+        return np.nan, np.nan
+    
     neighbors.sort(key=lambda x: x[0], reverse=True) # sort by similarity in descending order
     
     # predict rating
@@ -42,10 +58,19 @@ def predict_rating(u, i, k=5) :
     
     r_ui = divid/divis
     
-    # similar neighbors
     similar_neighbors = [(sim_uv, r_vi) for (sim_uv, r_vi) in neighbors[:k]]
     
     return r_ui, similar_neighbors
+    
+#    try : 
+#        r_ui = divid/divis
+#    except ZeroDivisionError : # 이웃이 없으면
+#        return np.nan, np.nan
+#    else :
+#        # similar neighbors
+#        similar_neighbors = [(sim_uv, r_vi) for (sim_uv, r_vi) in neighbors[:k]]
+#    
+#        return r_ui, similar_neighbors
 
 
 def tell_me(user) :
@@ -55,8 +80,8 @@ def tell_me(user) :
     uid = users.index(user)
     
     # 이미 시청한 아이템
-    see = ratings[user][ratings[user]>0].index.tolist() # item 제목
-    see_r = ratings[user][ratings[user]>0].tolist() # item 평점
+    see = ratings.loc[user,:][ratings.loc[user,:]>0].index.tolist() # item 제목
+    see_r = ratings.loc[user,:][ratings.loc[user,:]>0].tolist() # item 평점
     
     see_ratings = list()
     for i in range(len(see)) :
@@ -65,7 +90,7 @@ def tell_me(user) :
     see_ratings.sort(key=lambda x : x[1], reverse=True)
     
     # 실제로 좋아하는 아이템 top3
-    like = [(t, r) for (t, r) in see_ratings if r > 0.6]
+    like = [(t, r) for (t, r) in see_ratings if r > 60]
     
     if len(like) == 0 :
         print('* {} cold start *'.format(user))
@@ -76,17 +101,19 @@ def tell_me(user) :
             print('{}\t {}'.format(x[0], x[1]))
 
         # 아직 안 본 아이템
-        nosee = ratings[user][ratings[user]==0].index.tolist() # item 제목
+        nosee = ratings.loc[user,:][ratings.loc[user,:]==0].index.tolist() # item 제목
         nosee_id = [items.index(i) for i in nosee] # item id
     
         nosee_ratings = list()
         for i in range(len(nosee)) :
-            nosee_ratings.append( (nosee[i], predict_rating(uid, nosee_id[i])[0]) ) # item 제목, item 평점
+            pr = predict_rating(uid, nosee_id[i])[0]
+            if pr > 10 : # 10점 이상만 추천
+                nosee_ratings.append( (nosee[i], pr) ) # item 제목, item 평점
     
         nosee_ratings.sort(key=lambda x : x[1], reverse=True)
     
-        # 추천 아이템 top3
-        recommend = nosee_ratings[:3]
+        # 추천 아이템 top10
+        recommend = nosee_ratings[:10]
     
         print('* {} 고객님께 추천드려요! *'.format(user))
         for x in recommend :
@@ -103,37 +130,16 @@ def tell_me(user) :
     return None
 
 
-tell_me('KTPGMTV001_526357')
-tell_me(users[15])
 
+best_users = ratings[ratings.sum(1) > 250].index.tolist()
 
-for u in users:
+for u in best_users[23:27] :
     tell_me(u)
     print()
 
 
-
-
-user = 'KTPGMTV001_526357'
-
-u = users.index(user)
-i = 0
-
-r_ui, sne = predict_rating(u,i)
-
-# 시청기록 횟수와 유사도에 따른 분류, 좋아하는 그리고 추천하는 프로그램 수 = max(0.7보다 큰 수, 3)
+tell_me(users[0])
 
 
 
 
-
-
-
-a = []
-
-[i for i in a if i>2]
-
-for aa in a :
-    print(aa)
-
-a[0]
