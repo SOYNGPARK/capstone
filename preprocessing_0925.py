@@ -61,23 +61,23 @@ users['나이대'] = users['생년'].apply(lambda x : to_age(x))
     
 users = users.drop(['생년'], axis=1)
 
-# save
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\users0925.txt',"wb") as fp :
-        pickle.dump(users,fp)
-    
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\users0925.txt',"rb") as fp :
-        users_test = pickle.load(fp)
+## save
+#with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\users0925.txt',"wb") as fp :
+#        pickle.dump(users,fp)
+#    
+#with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\users0925.txt',"rb") as fp :
+#        users_test = pickle.load(fp)
 
 
 ## vod light##
-vod_light = vod.drop(['회원번호', '거래일시', '가맹점아이디', '거래유형', '상품명', '생년', '성별코드',
+vod_light = vod.drop(['회원번호', '가맹점아이디', '거래유형', '상품명', '생년', '성별코드',
                         '회차','시리즈'], axis=1)
 
 # save
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_light0925.txt',"wb") as fp :
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_light1016.txt',"wb") as fp :
         pickle.dump(vod_light,fp)
     
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_light0925.txt',"rb") as fp :
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_light1016.txt',"rb") as fp :
         vod_light_test = pickle.load(fp)
 
 

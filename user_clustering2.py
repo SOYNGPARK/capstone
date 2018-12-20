@@ -22,7 +22,7 @@ plt.rc('font', family=font_name)
 
 
 # load data
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\cluster_matrix.txt',"rb") as fp :
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\cluster_matrix10.txt',"rb") as fp :
         cluster_matrix = pickle.load(fp)
 
 
@@ -45,7 +45,7 @@ plt.show()
 
 
 # k-means clustering
-k=15
+k=7
 cls = KMeans(n_clusters=k, random_state=0)
 cls.fit(cluster_matrix)
 labels = cls.labels_
@@ -53,10 +53,10 @@ labels = cls.labels_
 user_labels = pd.DataFrame({'users' : cluster_matrix.index.tolist(), 'labels' : labels})
 
 # save
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\user_labels.txt',"wb") as fp :
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\user_labels10.txt',"wb") as fp :
         pickle.dump(user_labels,fp)
     
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\user_labels.txt',"rb") as fp :
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\user_labels10.txt',"rb") as fp :
         user_labels_test = pickle.load(fp)
 
 

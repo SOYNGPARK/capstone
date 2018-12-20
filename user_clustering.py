@@ -12,7 +12,7 @@ import pickle
 import matplotlib.pyplot as plt
 
 # load data
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\drama_matrix.txt',"rb") as fp :
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\drama_matrix10.txt',"rb") as fp :
         drama_matrix = pickle.load(fp)
 
 with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_light0925.txt',"rb") as fp :
@@ -30,6 +30,7 @@ merge = pd.merge(vod, genre, how='left', on='상품명2')
 
 # only drama genre
 drama = merge[merge['Genre'] == '드라마']
+drama = drama[drama['거래일시2']>60] # 10월까지
 
 ## drama users ## 
 users_list = drama['아이디+회원번호'].value_counts().index.tolist()
@@ -72,10 +73,10 @@ cluster_matrix = cluster_matrix.set_index('아이디+회원번호')
 
 
 # save
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\cluster_matrix.txt',"wb") as fp :
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\cluster_matrix10.txt',"wb") as fp :
         pickle.dump(cluster_matrix,fp)
     
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\drama_matrix.txt',"rb") as fp :
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\cluster_matrix10.txt',"rb") as fp :
         cluster_matrix_test = pickle.load(fp)
 
 

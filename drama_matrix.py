@@ -11,7 +11,7 @@ import pickle
 
 
 # load data
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_light0925.txt',"rb") as fp :
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\vod_light1016.txt',"rb") as fp :
         vod = pickle.load(fp)     
 
 genre = pd.read_csv(r'C:\Users\soug9\Desktop\Capstone Design 1\data\genre.csv')
@@ -22,6 +22,7 @@ merge = pd.merge(vod, genre, how='left', on='상품명2')
 
 # data
 data = merge[merge['Genre'] == '드라마']
+data = data[data['거래일시2']>60] # 10월까지
 
 # 상품명2
 items = data['상품명2'].value_counts()
@@ -69,8 +70,8 @@ def create_matrix(data) :
 
 
 # 기간
-recent = data[data['거래일시2']<=30] # 최근 30일(12월)
-once = data[data['거래일시2']>30] # 30일 이전
+recent = data[data['거래일시2']<=90] # 최근 30일(10월)
+once = data[data['거래일시2']>90] # 30일 이전
 
 # 기간 matrix
 recent_matrix = create_matrix(recent)
@@ -107,11 +108,11 @@ final_matrix[(once_matrix -all_matrix) == 0.1] = once_matrix
 
 
 # save
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\drama_matrix.txt',"wb") as fp :
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\drama_matrix10.txt',"wb") as fp :
         pickle.dump(final_matrix,fp)
     
-with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\drama_matrix.txt',"rb") as fp :
-        final_matrix = pickle.load(fp)
+with open(r'C:\Users\soug9\Desktop\Capstone Design 1\data\preprocessing\drama_matrix10.txt',"rb") as fp :
+        final_matrix_test = pickle.load(fp)
 
 
 
